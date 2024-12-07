@@ -1,3 +1,9 @@
+import com.google.gson.Gson;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Configuration {
@@ -6,8 +12,6 @@ public class Configuration {
     private final int retrievalInterval;
     private final int maxCapacity;
 
-
-    // Private constructor to prevent external instantiation without using the static method
     private Configuration(int totalTickets, int releaseInterval, int retrievalInterval, int maxCapacity) {
         this.totalTickets = totalTickets;
         this.releaseInterval = releaseInterval;
@@ -15,11 +19,9 @@ public class Configuration {
         this.maxCapacity = maxCapacity;
     }
 
-    // Static method to collect user input and return a Configuration object
     public static Configuration getConfigurationFromUser() {
         Scanner scanner = new Scanner(System.in);
 
-        // Collect configuration parameters from the user
         System.out.print("Enter total number of tickets: ");
         int totalTickets = scanner.nextInt();
 
@@ -32,11 +34,27 @@ public class Configuration {
         System.out.print("Enter maximum ticket pool capacity: ");
         int maxCapacity = scanner.nextInt();
 
-        // Return a new Configuration object initialized with user input
         return new Configuration(totalTickets, releaseInterval, retrievalInterval, maxCapacity);
     }
 
-    // Getters for the configuration parameters
+    public static Configuration loadFromFile(File file) {
+        try (FileReader reader = new FileReader(file)) {
+            Gson gson = new Gson();
+            return gson.fromJson(reader, Configuration.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load configuration from file.", e);
+        }
+    }
+
+    public void saveToFile(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+            Gson gson = new Gson();
+            gson.toJson(this, writer);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save configuration to file.", e);
+        }
+    }
+
     public int getTotalTickets() {
         return totalTickets;
     }
@@ -52,5 +70,4 @@ public class Configuration {
     public int getMaxCapacity() {
         return maxCapacity;
     }
-
 }
